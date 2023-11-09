@@ -299,21 +299,27 @@ def search(keywordList1,keywordList2,sorting,dday):
 
     return resultTextList
 
-
+startFlag=False
 while True:
     timeNow=datetime.datetime.now().strftime("%H")
-    keywordList=GetGoogleSpreadSheet()
-    if str(keywordList[0]['발송시간'])==str(timeNow):
-        print("시간맞음")
-        for index, keyword in enumerate(keywordList):
-            keyword1 = keyword['지역'].split(",")
-            keyword2 = keyword['관심카테고리'].split(",")
-            sorting = '기한적은순'
-            dday = 9999
-            resultTextList = search(keyword1, keyword2, sorting, dday)
-            sendMessage(resultTextList, keyword)
-            break
-
-    else:
-        print("시간안맞음")
+    try:
+        keywordList=GetGoogleSpreadSheet()
+        if str(keywordList[0]['발송시간'])==str(timeNow) and startFlag==False:
+            print("시간맞음")
+            for index, keyword in enumerate(keywordList):
+                keyword1 = keyword['지역'].split(",")
+                keyword2 = keyword['관심카테고리'].split(",")
+                sorting = '기한적은순'
+                dday = 9999
+                resultTextList = search(keyword1, keyword2, sorting, dday)
+                sendMessage(resultTextList, keyword)
+                break
+            startFlag=True
+        else:
+            print("시간안맞음")
+    except:
+        print("에러로잠깐쉼")
+        time.sleep(60)
+    if int(timeNow)==0:
+        startFlag=False
     time.sleep(10)
