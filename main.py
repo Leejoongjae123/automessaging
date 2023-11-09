@@ -5,6 +5,8 @@ import pprint
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import time
+import socket
+
 def sendMessage(resultTextList,keyword):
     basic_send_url = 'https://kakaoapi.aligo.in/akv10/token/create/30/s/' # 요청을 던지는 URL, 현재는 토큰생성
     # token/create/토큰 유효시간/{y(년)/m(월)/d(일)/h(시)/i(분)/s(초)}/
@@ -322,4 +324,6 @@ while True:
         time.sleep(60)
     if int(timeNow)==0:
         startFlag=False
+    ipaddress=socket.gethostname(socket.gethostname())
+    print("ipaddress:",ipaddress,"/ ipaddress_TYPE:",type(ipaddress),len(ipaddress))
     time.sleep(10)
