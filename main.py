@@ -324,6 +324,6 @@ while True:
         time.sleep(60)
     if int(timeNow)==0:
         startFlag=False
-    ipaddress=socket.gethostname(socket.gethostname())
+    ipaddress=socket.gethostbyname(socket.gethostname())
     print("ipaddress:",ipaddress,"/ ipaddress_TYPE:",type(ipaddress),len(ipaddress))
     time.sleep(10)
