@@ -219,42 +219,46 @@ def sendMessage(resultTextList,keyword):
     print("value9:",value9)
 
 
-    innerContents='''
-1.{} / {}
-2.{} / {}
-3.{} / {}
-4.{} / {}
-5.{} / {}
-6.{} / {}
-7.{} / {}
-8.{} / {}
-9.{} / {}      
-'''.format(key1,value1,key2,value2,key3,value3,key4,value4,key5,value5,key6,value6,key7,value7,key8,value8,key9,value9)
-    
+#     innerContents='''
+# 1.{} / {}
+# 2.{} / {}
+# 3.{} / {}
+# 4.{} / {}
+# 5.{} / {}
+# 6.{} / {}
+# 7.{} / {}
+# 8.{} / {}
+# 9.{} / {}
+# '''.format(key1,value1,key2,value2,key3,value3,key4,value4,key5,value5,key6,value6,key7,value7,key8,value8,key9,value9)
+    for index,resultText in enumerate(resultTextList):
+        text="{}.{} / {}".format(index+1,resultText.split(",")[0],resultText.split(",")[1])
+        innerContents=innerContents+text+'\n'
+
+    # innerContents='중재김밥/https://www.naver.com'
     
     data = {
         'apikey': apikey,
         'userid': userid,
         'token': token,
         'senderkey': senderKey,
-        'tpl_code':'TP_7475',
+        'tpl_code':'TP_8311',
         'sender':phonenumber,
         # 'receiver_1':'01090703001',
         'receiver_1':"0"+str(keyword['전화번호']),
-        'subject_1':'체험단톡',
+        'subject_1':'공생2',
         'message_1':'''안녕하세요. {} 고객님.\n
 공생마케팅의 체험단시대입니다.
-고객님께서 문의하신 카테고리의 체험단 소식 송신드립니다.
+고객님께서 문의하신 카테고리의 체험단 소식 송신드립니다.\n
 {}
-※ 해당 메시지는 고객님께서 요청하신 체험단 조건에 해당하는 제안이 등록될 경우 발송됩니다. '''.format(keyword['이름'],innerContents),
+※ 해당 메시지는 고객님께서 요청하신 체험단 조건에 해당하는 제안이 등록될 경우 발송됩니다 '''.format(keyword['이름'],innerContents),
         'button_1': button_info
     }
 
     pprint.pprint(data)
 
-    # response = requests.post('https://kakaoapi.aligo.in/akv10/alimtalk/send/', headers=headers, data=data)
-    # data=json.loads(response.text)
-    # pprint.pprint(data)
+    response = requests.post('https://kakaoapi.aligo.in/akv10/alimtalk/send/', headers=headers, data=data)
+    data=json.loads(response.text)
+    pprint.pprint(data)
 
 def GetGoogleSpreadSheet():
     scope = 'https://spreadsheets.google.com/feeds'
@@ -287,16 +291,19 @@ def search(keywordList1,keywordList2,sorting,dday):
     print('status_code:',res.status_code)
     results = json.loads(res.text)
     if sorting=="기한적은순":
-        results = sorted(results, key=lambda x: x['dday'])
+        results = sorted(results, key=lambda x: int(x['dday']))
     else:
-        results = sorted(results, key=lambda x: x['dday'],reverse=True)
-    results = [item for item in results if int(item['dday']) <= dday]
+        results = sorted(results, key=lambda x: int(x['dday']),reverse=True)
+    with open('results.json', 'w',encoding='utf-8-sig') as f:
+        json.dump(results, f, indent=2,ensure_ascii=False)
+    pprint.pprint(results)
+    
     resultTextList=[]
     for result in results:
-        print(result)
+        # print(result)
         resultText=result['title']+","+result['url']
         resultTextList.append(resultText)
-    print("작업완료")
+    # print("작업완료")
     resultTextList=resultTextList[:9]
 
     return resultTextList
@@ -307,6 +314,7 @@ while True:
     try:
         keywordList=GetGoogleSpreadSheet()
         if str(keywordList[0]['발송시간'])==str(timeNow) and startFlag==False:
+        # if True:
             print("시간맞음")
             for index, keyword in enumerate(keywordList):
                 keyword1 = keyword['지역'].split(",")
@@ -326,4 +334,6 @@ while True:
         startFlag=False
     ipaddress=socket.gethostbyname(socket.gethostname())
     print("ipaddress:",ipaddress,"/ ipaddress_TYPE:",type(ipaddress),len(ipaddress))
+    timeNow=datetime.datetime.now().strftime("%Y년%m월%d일_%H시%M분%S초")
+    print("timeNow:",timeNow,"/ timeNow_TYPE:",type(timeNow))
     time.sleep(10)
