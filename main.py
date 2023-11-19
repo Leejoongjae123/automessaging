@@ -6,6 +6,8 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import time
 import socket
+import schedule
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 def sendMessage(resultTextList,keyword):
     basic_send_url = 'https://kakaoapi.aligo.in/akv10/token/create/30/s/' # 요청을 던지는 URL, 현재는 토큰생성
@@ -231,7 +233,10 @@ def sendMessage(resultTextList,keyword):
 # 9.{} / {}
 # '''.format(key1,value1,key2,value2,key3,value3,key4,value4,key5,value5,key6,value6,key7,value7,key8,value8,key9,value9)
     for index,resultText in enumerate(resultTextList):
-        text="{}.{} / {}".format(index+1,resultText.split(",")[0],resultText.split(",")[1])
+        firstText=resultText.split(",")[0]
+        if len(firstText)>40:
+            firstText=firstText[:35]+"..."
+        text="{}.{} / {}".format(index+1,firstText,resultText.split(",")[1])
         innerContents=innerContents+text+'\n'
 
     # innerContents='중재김밥/https://www.naver.com'
@@ -241,21 +246,21 @@ def sendMessage(resultTextList,keyword):
         'userid': userid,
         'token': token,
         'senderkey': senderKey,
-        'tpl_code':'TP_8311',
+        'tpl_code':'TP_8433',
         'sender':phonenumber,
         # 'receiver_1':'01090703001',
         'receiver_1':"0"+str(keyword['전화번호']),
         'subject_1':'공생2',
         'message_1':'''안녕하세요. {} 고객님.\n
-공생마케팅의 체험단시대입니다.
+체험단시대입니다.
 고객님께서 문의하신 카테고리의 체험단 소식 송신드립니다.\n
 {}
 ※ 해당 메시지는 고객님께서 요청하신 체험단 조건에 해당하는 제안이 등록될 경우 발송됩니다 '''.format(keyword['이름'],innerContents),
         'button_1': button_info
     }
-
+    
     pprint.pprint(data)
-
+    print("data['message_1']:",data['message_1'],"/ data['message_1']_TYPE:",type(data['message_1']),len(data['message_1']))
     response = requests.post('https://kakaoapi.aligo.in/akv10/alimtalk/send/', headers=headers, data=data)
     data=json.loads(response.text)
     pprint.pprint(data)
@@ -308,32 +313,65 @@ def search(keywordList1,keywordList2,sorting,dday):
 
     return resultTextList
 
-startFlag=False
+def doRun():
+    keywordList=GetGoogleSpreadSheet()
+    for index, keyword in enumerate(keywordList):
+        keyword1 = keyword['지역'].split(",")
+        keyword2 = keyword['관심카테고리'].split(",")
+        sorting = '기한적은순'
+        dday = 9999
+        resultTextList = search(keyword1, keyword2, sorting, dday)
+        sendMessage(resultTextList, keyword)
+    print("실행완료!")
+
+
+
+# startFlag=False
+# while True:
+#     timeNow=datetime.datetime.now().strftime("%H")
+#     try:
+#         keywordList=GetGoogleSpreadSheet()
+#         if int(keywordList[0]['발송시간'])==int(timeNow) and startFlag==False:
+#             print("시간맞음")
+#         #     for index, keyword in enumerate(keywordList):
+#         #         keyword1 = keyword['지역'].split(",")
+#         #         keyword2 = keyword['관심카테고리'].split(",")
+#         #         sorting = '기한적은순'
+#         #         dday = 9999
+#         #         resultTextList = search(keyword1, keyword2, sorting, dday)
+#         #         sendMessage(resultTextList, keyword)
+#             startFlag=True
+#         else:
+#             print("시간안맞음")
+#     except:
+#         print("에러로잠깐쉼")
+#         time.sleep(60)
+#     if int(timeNow)==0:
+#         startFlag=False
+#     ipaddress=socket.gethostbyname(socket.gethostname())
+#     print("ipaddress:",ipaddress,"/ ipaddress_TYPE:",type(ipaddress),len(ipaddress))
+#     timeNow=datetime.datetime.now().strftime("%Y년%m월%d일_%H시%M분%S초")
+#     print("timeNow:",timeNow,"/ timeNow_TYPE:",type(timeNow))
+#     time.sleep(0.1)
+
+
+# 크론 표현식으로 함수를 예약합니다. (예: 매일 오후 3시)
+# keywordList=GetGoogleSpreadSheet()
+# reserveTime="{}:00".format(keywordList[0]['발송시간'])
+# schedule.every(reserveTime).day.at().do(doRun())
+# print("reserveTime:",reserveTime,"/ reserveTime_TYPE:",type(reserveTime),len(reserveTime))
+# while True:
+#     schedule.run_pending()
+#     time.sleep(10)
+
+
+keywordList=GetGoogleSpreadSheet()
+# 크론 표현식으로 함수를 예약합니다. (예: 매일 오후 3시)
 while True:
-    timeNow=datetime.datetime.now().strftime("%H")
-    try:
-        keywordList=GetGoogleSpreadSheet()
-        if str(keywordList[0]['발송시간'])==str(timeNow) and startFlag==False:
-        # if True:
-            print("시간맞음")
-            for index, keyword in enumerate(keywordList):
-                keyword1 = keyword['지역'].split(",")
-                keyword2 = keyword['관심카테고리'].split(",")
-                sorting = '기한적은순'
-                dday = 9999
-                resultTextList = search(keyword1, keyword2, sorting, dday)
-                sendMessage(resultTextList, keyword)
-                break
-            startFlag=True
-        else:
-            print("시간안맞음")
-    except:
-        print("에러로잠깐쉼")
-        time.sleep(60)
-    if int(timeNow)==0:
-        startFlag=False
-    ipaddress=socket.gethostbyname(socket.gethostname())
-    print("ipaddress:",ipaddress,"/ ipaddress_TYPE:",type(ipaddress),len(ipaddress))
-    timeNow=datetime.datetime.now().strftime("%Y년%m월%d일_%H시%M분%S초")
-    print("timeNow:",timeNow,"/ timeNow_TYPE:",type(timeNow))
-    time.sleep(10)
+    timeNow=datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    timeTarget=datetime.datetime.now().strftime("%Y%m%d_{}{}{}".format(keywordList[0]['발송시간'],'28','00'))
+    text="현재:{}/{}".format(timeNow,timeTarget)
+    print(text)
+    if timeNow==timeTarget:
+        doRun()
+    time.sleep(1)
