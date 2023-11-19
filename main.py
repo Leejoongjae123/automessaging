@@ -6,8 +6,6 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import time
 import socket
-import schedule
-from apscheduler.schedulers.blocking import BlockingScheduler
 
 def sendMessage(resultTextList,keyword):
     basic_send_url = 'https://kakaoapi.aligo.in/akv10/token/create/30/s/' # 요청을 던지는 URL, 현재는 토큰생성
@@ -368,10 +366,12 @@ def doRun():
 keywordList=GetGoogleSpreadSheet()
 # 크론 표현식으로 함수를 예약합니다. (예: 매일 오후 3시)
 while True:
-    timeNow=datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    timeTarget=datetime.datetime.now().strftime("%Y%m%d_{}{}{}".format(keywordList[0]['발송시간'],'28','00'))
-    text="현재:{}/{}".format(timeNow,timeTarget)
+    timeNowString=datetime.datetime.now().strftime("%H%M%S")
+    # timeTarget=datetime.datetime.now().strftime("%Y%m%d_{}{}{}".format(keywordList[0]['발송시간'],'00','00'))
+    timeNow=datetime.datetime.now()
+    timeTarget=dt = datetime.datetime(timeNow.year,timeNow.month,timeNow.day,keywordList[0]['발송시간'], 0, 0).strftime("%H%M%S")
+    text="현재:{}/{}".format(timeNowString,timeTarget)
     print(text)
-    if timeNow==timeTarget:
+    if timeNowString==timeTarget:
         doRun()
     time.sleep(1)
