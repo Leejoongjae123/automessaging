@@ -278,7 +278,7 @@ def GetGoogleSpreadSheet():
     #==================맨 밑행에 데이타 넣기
     # new_row = ['John', 30, 'Teacher']
     # worksheet.append_row(new_row)
-    pprint.pprint(all_data)
+    # pprint.pprint(all_data)
     return all_data
 
 def search(keywordList1,keywordList2,sorting,dday):
@@ -303,9 +303,13 @@ def search(keywordList1,keywordList2,sorting,dday):
     
     resultTextList=[]
     for result in results:
-        # print(result)
-        resultText=result['title']+","+result['url']
-        resultTextList.append(resultText)
+        if len(result['url'])>=5:
+            # print("URL있음")
+            resultText=result['title'].replace("\n","").replace("  ","")+","+result['url']
+            resultTextList.append(resultText)
+        else:
+            # print("URL없음")
+            pass
     # print("작업완료")
     resultTextList=resultTextList[:9]
 
@@ -319,7 +323,13 @@ def doRun():
         sorting = '기한적은순'
         dday = 9999
         resultTextList = search(keyword1, keyword2, sorting, dday)
-        sendMessage(resultTextList, keyword)
+        if len(resultTextList)>=1:
+            print("결과있음")
+            pprint.pprint(resultTextList)
+            sendMessage(resultTextList, keyword)
+        else:
+            print("결과없음")
+
     print("실행완료!")
 
 
@@ -373,5 +383,6 @@ while True:
     text="현재:{}/{}".format(timeNowString,timeTarget)
     print(text)
     if timeNowString==timeTarget:
+    # if True:
         doRun()
     time.sleep(1)
