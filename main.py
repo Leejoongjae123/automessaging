@@ -388,7 +388,7 @@ keywordList=GetGoogleSpreadSheet()
 # 크론 표현식으로 함수를 예약합니다. (예: 매일 오후 3시)
 count=0
 while True:
-    if count%60==0:
+    if count%5==0:
         keywordList=GetGoogleSpreadSheet()
     timeNowString=datetime.datetime.now().strftime("%H%M%S")
     # timeTarget=datetime.datetime.now().strftime("%Y%m%d_{}{}{}".format(keywordList[0]['발송시간'],'00','00'))
