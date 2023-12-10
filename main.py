@@ -232,11 +232,12 @@ def sendMessage(resultTextList,keyword):
 # '''.format(key1,value1,key2,value2,key3,value3,key4,value4,key5,value5,key6,value6,key7,value7,key8,value8,key9,value9)
     for index,resultText in enumerate(resultTextList):
         firstText=resultText.split(",")[0]
-        if len(firstText)>40:
-            firstText=firstText[:35]+"..."
+        if len(firstText)>20:
+            firstText=firstText[:40]+"..."
         text="{}.{} / {}".format(index+1,firstText,resultText.split(",")[1])
         innerContents=innerContents+text+'\n'
-
+    print("길이는:")
+    print(len(innerContents))
     # innerContents='중재김밥/https://www.naver.com'
     
     data = {
@@ -256,7 +257,8 @@ def sendMessage(resultTextList,keyword):
 ※ 해당 메시지는 고객님께서 요청하신 체험단 조건에 해당하는 제안이 등록될 경우 발송됩니다 '''.format(keyword['이름'],innerContents),
         'button_1': button_info
     }
-    
+
+    print("메세지 데이타")
     pprint.pprint(data)
     print("data['message_1']:",data['message_1'],"/ data['message_1']_TYPE:",type(data['message_1']),len(data['message_1']))
     response = requests.post('https://kakaoapi.aligo.in/akv10/alimtalk/send/', headers=headers, data=data)
@@ -303,13 +305,19 @@ def search(keywordList1,keywordList2,sorting,dday):
     
     resultTextList=[]
     for result in results:
+        # print("===============")
+        # pprint.pprint(result)
+        # print("===============")
         if len(result['url'])>=5:
-            # print("URL있음")
             resultText=result['title'].replace("\n","").replace("  ","")+","+result['url']
             resultTextList.append(resultText)
         else:
-            # print("URL없음")
             pass
+    resultTextList=resultTextList[:6]
+    print(len(resultTextList))
+    print("===============")
+    pprint.pprint(resultTextList)
+    print("===============")
     # print("작업완료")
     resultTextList=resultTextList[:9]
 
@@ -318,18 +326,22 @@ def search(keywordList1,keywordList2,sorting,dday):
 def doRun():
     keywordList=GetGoogleSpreadSheet()
     for index, keyword in enumerate(keywordList):
+        print('이름:',keyword['이름'])
         keyword1 = keyword['지역'].split(",")
         keyword2 = keyword['관심카테고리'].split(",")
         sorting = '기한적은순'
         dday = 9999
-        resultTextList = search(keyword1, keyword2, sorting, dday)
+        try:
+            resultTextList = search(keyword1, keyword2, sorting, dday)
+        except:
+            print('에러발생으로건너뜀')
+            continue
         if len(resultTextList)>=1:
             print("결과있음")
-            pprint.pprint(resultTextList)
             sendMessage(resultTextList, keyword)
         else:
             print("결과없음")
-
+        break
     print("실행완료!")
 
 
