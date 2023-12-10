@@ -341,7 +341,6 @@ def doRun():
             sendMessage(resultTextList, keyword)
         else:
             print("결과없음")
-        break
     print("실행완료!")
 
 
@@ -394,7 +393,7 @@ while True:
     timeTarget=dt = datetime.datetime(timeNow.year,timeNow.month,timeNow.day,keywordList[0]['발송시간'], 0, 0).strftime("%H%M%S")
     text="현재:{}/{}".format(timeNowString,timeTarget)
     print(text)
-    # if timeNowString==timeTarget:
-    if True:
+    if timeNowString==timeTarget:
+    # if True:
         doRun()
     time.sleep(1)
