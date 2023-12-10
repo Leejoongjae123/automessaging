@@ -232,8 +232,8 @@ def sendMessage(resultTextList,keyword):
 # '''.format(key1,value1,key2,value2,key3,value3,key4,value4,key5,value5,key6,value6,key7,value7,key8,value8,key9,value9)
     for index,resultText in enumerate(resultTextList):
         firstText=resultText.split(",")[0]
-        if len(firstText)>20:
-            firstText=firstText[:40]+"..."
+        if len(firstText)>100:
+            firstText=firstText[:100]+"..."
         text="{}.{} / {}".format(index+1,firstText,resultText.split(",")[1])
         innerContents=innerContents+text+'\n'
     print("길이는:")
@@ -394,7 +394,7 @@ while True:
     timeTarget=dt = datetime.datetime(timeNow.year,timeNow.month,timeNow.day,keywordList[0]['발송시간'], 0, 0).strftime("%H%M%S")
     text="현재:{}/{}".format(timeNowString,timeTarget)
     print(text)
-    if timeNowString==timeTarget:
-    # if True:
+    # if timeNowString==timeTarget:
+    if True:
         doRun()
     time.sleep(1)
