@@ -324,7 +324,13 @@ def search(keywordList1,keywordList2,sorting,dday):
     return resultTextList
 
 def doRun():
-    keywordList=GetGoogleSpreadSheet()
+    while True:
+        try:
+            keywordList = GetGoogleSpreadSheet()
+            break
+        except:
+            print("실패")
+            time.sleep(1)
     for index, keyword in enumerate(keywordList):
         print('이름:',keyword['이름'])
         keyword1 = keyword['지역'].split(",")
@@ -382,14 +388,24 @@ def doRun():
 # while True:
 #     schedule.run_pending()
 #     time.sleep(10)
-
-
-keywordList=GetGoogleSpreadSheet()
+while True:
+    try:
+        keywordList=GetGoogleSpreadSheet()
+        break
+    except:
+        print("실패")
+        time.sleep(1)
 # 크론 표현식으로 함수를 예약합니다. (예: 매일 오후 3시)
 
 while True:
     if datetime.datetime.now().second%60==51:
-        keywordList=GetGoogleSpreadSheet()
+        while True:
+            try:
+                keywordList = GetGoogleSpreadSheet()
+                break
+            except:
+                print("실패")
+                time.sleep(1)
     timeNowString=datetime.datetime.now().strftime("%H%M%S")
     # timeTarget=datetime.datetime.now().strftime("%Y%m%d_{}{}{}".format(keywordList[0]['발송시간'],'00','00'))
     timeNow=datetime.datetime.now()
