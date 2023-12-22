@@ -283,8 +283,9 @@ def GetGoogleSpreadSheet():
     # pprint.pprint(all_data)
     return all_data
 
-def search(keywordList1,keywordList2,sorting,dday):
+def search(keywordList1,keywordList2,sorting):
     url = 'https://f36dcjopejicrmfh3tq2bavmbe0ljydb.lambda-url.ap-northeast-2.on.aws/search'
+    # url = 'http://127.0.0.1:8000/search'
     print("url:", url)
     data={
     'keywords1': keywordList1,
@@ -323,6 +324,8 @@ def search(keywordList1,keywordList2,sorting,dday):
 
     return resultTextList
 
+
+
 def doRun():
     while True:
         try:
@@ -338,7 +341,7 @@ def doRun():
         sorting = '기한적은순'
         dday = 9999
         try:
-            resultTextList = search(keyword1, keyword2, sorting, dday)
+            resultTextList = search(keyword1, keyword2, sorting)
         except:
             print('에러발생으로건너뜀')
             continue
@@ -349,45 +352,12 @@ def doRun():
             print("결과없음")
     print("실행완료!")
 
+# keywordList1=['강남']
+# keywordList2=['맛집', '뷰티', '펜션', '배송', '제품', '밀키트']
+# sorting='dday'
+# search(keywordList1,keywordList2,sorting)
 
-
-# startFlag=False
-# while True:
-#     timeNow=datetime.datetime.now().strftime("%H")
-#     try:
-#         keywordList=GetGoogleSpreadSheet()
-#         if int(keywordList[0]['발송시간'])==int(timeNow) and startFlag==False:
-#             print("시간맞음")
-#         #     for index, keyword in enumerate(keywordList):
-#         #         keyword1 = keyword['지역'].split(",")
-#         #         keyword2 = keyword['관심카테고리'].split(",")
-#         #         sorting = '기한적은순'
-#         #         dday = 9999
-#         #         resultTextList = search(keyword1, keyword2, sorting, dday)
-#         #         sendMessage(resultTextList, keyword)
-#             startFlag=True
-#         else:
-#             print("시간안맞음")
-#     except:
-#         print("에러로잠깐쉼")
-#         time.sleep(60)
-#     if int(timeNow)==0:
-#         startFlag=False
-#     ipaddress=socket.gethostbyname(socket.gethostname())
-#     print("ipaddress:",ipaddress,"/ ipaddress_TYPE:",type(ipaddress),len(ipaddress))
-#     timeNow=datetime.datetime.now().strftime("%Y년%m월%d일_%H시%M분%S초")
-#     print("timeNow:",timeNow,"/ timeNow_TYPE:",type(timeNow))
-#     time.sleep(0.1)
-
-
-# 크론 표현식으로 함수를 예약합니다. (예: 매일 오후 3시)
-# keywordList=GetGoogleSpreadSheet()
-# reserveTime="{}:00".format(keywordList[0]['발송시간'])
-# schedule.every(reserveTime).day.at().do(doRun())
-# print("reserveTime:",reserveTime,"/ reserveTime_TYPE:",type(reserveTime),len(reserveTime))
-# while True:
-#     schedule.run_pending()
-#     time.sleep(10)
+#================작동부
 while True:
     try:
         keywordList=GetGoogleSpreadSheet()
@@ -397,6 +367,7 @@ while True:
         time.sleep(1)
 # 크론 표현식으로 함수를 예약합니다. (예: 매일 오후 3시)
 
+firstFlag=True
 while True:
     if datetime.datetime.now().second%60==51:
         while True:
@@ -412,8 +383,7 @@ while True:
     timeTarget=dt = datetime.datetime(timeNow.year,timeNow.month,timeNow.day,keywordList[0]['발송시간'], 0, 0).strftime("%H%M%S")
     text="현재:{}/{}".format(timeNowString,timeTarget)
     print(text)
-    if timeNowString==timeTarget:
-    # if True:
+    if timeNowString==timeTarget or firstFlag==True:
         doRun()
-
+        firstFlag=False
     time.sleep(1)
