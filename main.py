@@ -314,6 +314,7 @@ def search(keywordList1,keywordList2,sorting):
             resultTextList.append(resultText)
         else:
             pass
+
     resultTextList=resultTextList[:6]
     print(len(resultTextList))
     print("===============")
@@ -347,17 +348,19 @@ def doRun():
             continue
         if len(resultTextList)>=1:
             print("결과있음")
-            sendMessage(resultTextList, keyword)
+            try:
+                sendMessage(resultTextList, keyword)
+                print("전송완료")
+            except:
+                print("전송에로")
+                continue
         else:
             print("결과없음")
     print("실행완료!")
 
-# keywordList1=['강남']
-# keywordList2=['맛집', '뷰티', '펜션', '배송', '제품', '밀키트']
-# sorting='dday'
-# search(keywordList1,keywordList2,sorting)
 
-#================작동부
+
+# ================작동부
 while True:
     try:
         keywordList=GetGoogleSpreadSheet()
